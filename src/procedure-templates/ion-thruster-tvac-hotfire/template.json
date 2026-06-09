@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "id": "ion-thruster-tvac-hotfire",
+  "code": "EP",
+  "version": "1.0",
+  "title": "Ion Thruster TVAC Hot-Fire",
+  "shortTitle": "Ion Thruster Hot-Fire",
+  "domain": "Spacecraft AIT",
+  "estimatedDuration": "Shift-dependent",
+  "summary": "Integrated hot-fire campaign for an ion thruster, xenon feed system, power processing unit, and chamber support equipment.",
+  "steps": [
+    {
+      "id": "EP-001",
+      "title": "Confirm test authorization",
+      "description": "Verify the approved procedure revision, configuration baseline, test roles, communication loop, operating limits, abort criteria, emergency response, and required permits.",
+      "image": null
+    },
+    {
+      "id": "EP-002",
+      "title": "Verify chamber readiness",
+      "description": "Confirm chamber cleanliness, pumping train status, cryogenic shroud configuration, plume target or beam dump, protective liners, viewports, and contamination controls.",
+      "image": {
+        "src": "assets/vacuum-chamber.jpg",
+        "alt": "Interior of NASA Glenn Vacuum Chamber 5 with cryogenic panels and pumping equipment.",
+        "caption": "Reference chamber view showing cryogenic surfaces and facility hardware used to sustain an electric-propulsion vacuum environment.",
+        "credit": "NASA",
+        "sourceUrl": "https://www.nasa.gov/image-article/journey-space-vacuum-chamber/"
+      }
+    },
+    {
+      "id": "EP-003",
+      "title": "Inspect thruster installation",
+      "description": "Verify thruster mounting, alignment, fastener witness marks, grounding and bonding, thermal interfaces, harness routing, and plume-clearance envelope.",
+      "image": null
+    },
+    {
+      "id": "EP-004",
+      "title": "Verify xenon feed system",
+      "description": "Confirm xenon grade and source identification, regulator and valve configuration, leak-check acceptance, calibrated flow-control hardware, purge status, and pressure-relief provisions.",
+      "image": null
+    },
+    {
+      "id": "EP-005",
+      "title": "Verify PPU and high voltage",
+      "description": "Inspect power processing unit harnessing, connector mating, polarity, bonding, insulation, current limiting, high-voltage interlocks, and emergency shutdown chain.",
+      "image": null
+    },
+    {
+      "id": "EP-006",
+      "title": "Validate instrumentation",
+      "description": "Verify calibration status, channel mapping, sample rates, range settings, and common time reference for pressure, xenon flow, voltage, current, temperature, and facility telemetry.",
+      "image": null
+    },
+    {
+      "id": "EP-007",
+      "title": "Complete chamber closeout",
+      "description": "Perform FOD and tool accountability, photograph the as-installed configuration, confirm personnel clear, verify access closures, and establish the chamber exclusion zone.",
+      "image": null
+    },
+    {
+      "id": "EP-008",
+      "title": "Establish vacuum condition",
+      "description": "Pump down using the authorized sequence. Monitor outgassing, pressure trends, electrical isolation, and thermal conditions until the approved ignition environment is stable.",
+      "image": null
+    },
+    {
+      "id": "EP-009",
+      "title": "Perform low-voltage checkout",
+      "description": "With beam extraction inhibited, verify command and telemetry paths, valve actuation, heater functions, housekeeping telemetry, and cathode or neutralizer conditioning as authorized.",
+      "image": null
+    },
+    {
+      "id": "EP-010",
+      "title": "Authorize ignition",
+      "description": "When authorized, initiate xenon flow and discharge ignition, confirm stable cathode and neutralizer operation, then enable beam extraction at the prescribed low-power point.",
+      "image": {
+        "src": "assets/ion-thruster-plume.jpg",
+        "alt": "Xenon ion thruster operating in a vacuum chamber with a visible blue plume.",
+        "caption": "Reference view of a xenon ion engine operating under vacuum; use it to orient the operator to the expected illuminated discharge and plume region.",
+        "credit": "NASA/JPL",
+        "sourceUrl": "https://science.nasa.gov/photojournal/deep-space-1s-ion-engine-2/"
+      }
+    },
+    {
+      "id": "EP-011",
+      "title": "Execute throttle sequence",
+      "description": "Run the approved throttle points and dwell periods. Record discharge, beam, accelerator, neutralizer, xenon-flow, pressure, and thermal data; monitor for oscillation, arcing, or limit excursions.",
+      "image": null
+    },
+    {
+      "id": "EP-012",
+      "title": "Verify restart transients",
+      "description": "Perform only the approved hot or cold restart cases. Capture ignition delay, overshoot, settling behavior, valve response, and any protection-system activation.",
+      "image": null
+    },
+    {
+      "id": "EP-013",
+      "title": "Execute controlled shutdown",
+      "description": "Follow the authorized power-down order, confirm beam and discharge removal, verify stored high-voltage energy is discharged, apply xenon post-flow if required, and secure the feed system.",
+      "image": null
+    },
+    {
+      "id": "EP-014",
+      "title": "Inspect and close out",
+      "description": "After approved chamber venting, inspect grids, neutralizer, insulators, harnesses, deposits, and evidence of arcing or erosion. Reconcile data files, photographs, anomalies, and final configuration.",
+      "image": null
+    }
+  ],
+  "ownerRole": "Test Conductor",
+  "applicability": [
+    "Spacecraft AIT"
+  ],
+  "executionPolicy": {
+    "sequential": true,
+    "allowNextStepPreview": true
+  },
+  "evidencePolicy": {
+    "notes": true,
+    "photoCapture": "mock"
+  }
+}

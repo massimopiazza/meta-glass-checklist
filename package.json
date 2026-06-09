@@ -1,0 +1,14 @@
+{
+  "name": "ait-procedure-runner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/app.js && node --check src/core.js && node --check src/storage.js && node --check src/templates.js && node --check sw.js",
+    "serve": "python3 -m http.server 4174"
+  },
+  "devDependencies": {
+    "lucide-static": "^1.17.0"
+  }
+}

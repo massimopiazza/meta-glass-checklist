@@ -1,0 +1,10 @@
+.DS_Store
+!favicon.png
+.playwright-mcp/
+node_modules/
+coverage/
+dist/
+*.log
+.env
+.env.*
+!.env.example

@@ -1,0 +1,16 @@
+{
+  "name": "AIT Procedure Runner",
+  "short_name": "AIT Runner",
+  "description": "Offline aerospace AIT procedure checklists for Meta Display Glasses.",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    }
+  ],
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "display": "standalone",
+  "start_url": "./"
+}

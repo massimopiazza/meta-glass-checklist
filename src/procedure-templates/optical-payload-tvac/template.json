@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "id": "optical-payload-tvac",
+  "code": "OPT",
+  "version": "1.0",
+  "title": "Optical Payload TVAC",
+  "shortTitle": "Optical Payload TVAC",
+  "domain": "Payload Qualification",
+  "estimatedDuration": "Multi-cycle",
+  "summary": "Thermal-vacuum functional and optical performance verification for an imaging payload using controlled stimulus and contamination monitoring.",
+  "steps": [
+    {
+      "id": "OPT-001",
+      "title": "Confirm payload configuration",
+      "description": "Verify hardware and software configuration, cleanliness status, red-tag and green-tag items, optical covers, purge history, and the approved test procedure revision.",
+      "image": null
+    },
+    {
+      "id": "OPT-002",
+      "title": "Establish contamination controls",
+      "description": "Inspect accessible optical surfaces under the approved method and install authorized witness samples, quartz-crystal microbalance monitoring, molecular adsorbers, or covers.",
+      "image": null
+    },
+    {
+      "id": "OPT-003",
+      "title": "Verify mechanical installation",
+      "description": "Confirm mounting interfaces, fastener witness marks, gravity-offload provisions if applicable, thermal straps, heater interfaces, harness strain relief, grounding, and purge connections.",
+      "image": {
+        "src": "assets/imaging-spectrometer-tvac.jpg",
+        "alt": "Technician installing an imaging spectrometer into a thermal vacuum chamber.",
+        "caption": "Reference installation view for checking payload support, harness routing, chamber clearances, and handling access before closeout.",
+        "credit": "NASA/JPL-Caltech",
+        "sourceUrl": "https://science.nasa.gov/photojournal/imaging-spectrometer-inside-thermal-vacuum-chamber/"
+      }
+    },
+    {
+      "id": "OPT-004",
+      "title": "Validate instrumentation",
+      "description": "Verify temperature-sensor placement and polarity, heater channels, chamber instrumentation, EGSE calibration, optical stimulus telemetry, data paths, and common time synchronization.",
+      "image": null
+    },
+    {
+      "id": "OPT-005",
+      "title": "Align optical stimulus",
+      "description": "Align and document the collimator, target, integrating source, or star simulator through the chamber optical path. Record reference geometry, focus setting, and boresight datum.",
+      "image": {
+        "src": "assets/coronagraph-test-chamber.jpg",
+        "alt": "Optical coronagraph test chamber and optical bench hardware at NASA JPL.",
+        "caption": "Reference optical test arrangement illustrating a controlled chamber path used with a simulated star source and precision optical hardware.",
+        "credit": "NASA/JPL-Caltech",
+        "sourceUrl": "https://science.nasa.gov/photojournal/coronagraph-test-chamber/"
+      }
+    },
+    {
+      "id": "OPT-006",
+      "title": "Capture ambient baseline",
+      "description": "Acquire pre-test functional, dark, noise, radiometric, focus, boresight, distortion, image-quality, mechanism, and housekeeping telemetry data under the approved ambient condition.",
+      "image": null
+    },
+    {
+      "id": "OPT-007",
+      "title": "Close and pump chamber",
+      "description": "Complete FOD accountability and chamber closeout, then pump down while monitoring pressure, payload temperatures, purge transition, outgassing, and contamination instrumentation.",
+      "image": null
+    },
+    {
+      "id": "OPT-008",
+      "title": "Transition to cold plateau",
+      "description": "Command the approved cold transition while monitoring ramp rate, gradients, survival limits, heater control, and chamber-to-payload thermal response.",
+      "image": null
+    },
+    {
+      "id": "OPT-009",
+      "title": "Test at cold stabilization",
+      "description": "After approved stability criteria are satisfied, execute cold functional checks and acquire the specified dark, radiometric, focus, boresight, distortion, and image-quality datasets.",
+      "image": null
+    },
+    {
+      "id": "OPT-010",
+      "title": "Exercise payload mechanisms",
+      "description": "Operate shutters, filter wheels, focus mechanisms, calibration sources, doors, heaters, and safe-mode functions only at the prescribed thermal states; record current and timing signatures.",
+      "image": null
+    },
+    {
+      "id": "OPT-011",
+      "title": "Test at hot stabilization",
+      "description": "At the approved hot stabilized condition, repeat functional and optical performance measurements and compare key telemetry against predicted thermal behavior.",
+      "image": null
+    },
+    {
+      "id": "OPT-012",
+      "title": "Execute thermal cycles",
+      "description": "Complete the prescribed hot and cold cycles, intermediate operational profiles, non-operating dwells, and required performance samples without exceeding approved ramps or gradients.",
+      "image": null
+    },
+    {
+      "id": "OPT-013",
+      "title": "Assess thermo-optical stability",
+      "description": "Evaluate focus, boresight, distortion, radiometric response, detector behavior, image quality, and alignment repeatability across temperature using the controlled optical reference.",
+      "image": null
+    },
+    {
+      "id": "OPT-014",
+      "title": "Repeat ambient-vacuum baseline",
+      "description": "Return to the approved ambient-vacuum condition and repeat the baseline dataset to identify hysteresis, permanent alignment shift, contamination effects, or performance drift.",
+      "image": null
+    },
+    {
+      "id": "OPT-015",
+      "title": "Vent and perform closeout",
+      "description": "Vent with the approved clean, dry gas sequence. Inspect optical and mechanical interfaces, review witness and contamination data, reconcile anomalies, archive evidence, and restore configuration.",
+      "image": null
+    }
+  ],
+  "ownerRole": "Test Conductor",
+  "applicability": [
+    "Payload Qualification"
+  ],
+  "executionPolicy": {
+    "sequential": true,
+    "allowNextStepPreview": true
+  },
+  "evidencePolicy": {
+    "notes": true,
+    "photoCapture": "mock"
+  }
+}
