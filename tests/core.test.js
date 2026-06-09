@@ -11,6 +11,7 @@ import {
   getSequentialAccess,
   removeAttachment,
   toggleStepCompletion,
+  toggleStepNotApplicable,
   updateStepNotes,
   validateTemplates
 } from "../src/core.js";
@@ -34,13 +35,15 @@ test("built-in templates are complete and have unique identifiers", () => {
     true
   );
   assert.equal(
-    PROCEDURE_TEMPLATES.every((item) => item.steps.every((step) => Object.hasOwn(step, "image"))),
+    PROCEDURE_TEMPLATES.every((item) =>
+      item.steps.every((step) => Array.isArray(step.images))
+    ),
     true
   );
-  assert.equal(
-    PROCEDURE_TEMPLATES.flatMap((item) => item.steps).filter((step) => step.image).length,
-    6
-  );
+  const allSteps = PROCEDURE_TEMPLATES.flatMap((item) => item.steps);
+  assert.equal(allSteps.filter((step) => step.images.length > 0).length, 6);
+  assert.equal(allSteps.reduce((count, step) => count + step.images.length, 0), 9);
+  assert.equal(allSteps.filter((step) => step.images.length > 1).length, 3);
 });
 
 test("run identifiers do not use the legacy RUN prefix", () => {
@@ -82,7 +85,7 @@ test("run completes automatically and reactivates when a step is reopened", () =
   assert.ok(run.audit.some((event) => event.type === "run_reopened"));
 });
 
-test("sequential policy allows the current step and one read-only preview", () => {
+test("sequential policy exposes every step but gates edits to the frontier", () => {
   const run = createRun(template, "Sequential demo", startedAt);
 
   assert.deepEqual(getSequentialAccess(run, template, 0), {
@@ -91,17 +94,59 @@ test("sequential policy allows the current step and one read-only preview", () =
     canView: true,
     canEdit: true
   });
+  // Every step can be opened for preview, regardless of distance from the frontier.
   assert.equal(getSequentialAccess(run, template, 1).canView, true);
+  assert.equal(getSequentialAccess(run, template, 5).canView, true);
+  // Only the frontier accepts edits.
   assert.equal(getSequentialAccess(run, template, 1).canEdit, false);
-  assert.equal(getSequentialAccess(run, template, 2).canView, false);
+  assert.equal(getSequentialAccess(run, template, 5).canEdit, false);
 
   toggleStepCompletion(run, template, "EP-001", "2026-06-07T10:05:00.000Z");
   assert.equal(getSequentialAccess(run, template, 1).canEdit, true);
+  assert.equal(getSequentialAccess(run, template, 2).canEdit, false);
   assert.equal(getSequentialAccess(run, template, 2).canView, true);
+});
 
-  toggleStepCompletion(run, template, "EP-004", "2026-06-07T10:06:00.000Z");
-  assert.equal(getSequentialAccess(run, template, 3).canView, true);
-  assert.equal(getSequentialAccess(run, template, 3).canEdit, false);
+test("marking a step not applicable resolves it and advances the sequence", () => {
+  const run = createRun(template, "N/A demo", startedAt);
+
+  toggleStepNotApplicable(run, template, "EP-001", "2026-06-07T10:05:00.000Z");
+  const stepState = run.stepStates["EP-001"];
+  assert.equal(stepState.notApplicable, true);
+  assert.equal(stepState.completed, false);
+  assert.ok(run.audit.some((event) => event.type === "step_marked_na"));
+
+  // The frontier advances past the N/A step.
+  assert.equal(getSequentialAccess(run, template, 1).canEdit, true);
+  const progress = calculateProgress(run, template);
+  assert.equal(progress.notApplicable, 1);
+  assert.equal(progress.resolved, 1);
+
+  // Completing an N/A step supersedes the N/A mark.
+  toggleStepCompletion(run, template, "EP-001", "2026-06-07T10:06:00.000Z");
+  assert.equal(run.stepStates["EP-001"].notApplicable, false);
+  assert.equal(run.stepStates["EP-001"].completed, true);
+  assert.ok(run.audit.some((event) => event.type === "step_na_cleared"));
+});
+
+test("a run completes when every step is completed or N/A", () => {
+  const run = createRun(template, "Mixed completion demo", startedAt);
+  template.steps.forEach((step, index) => {
+    const timestamp = `2026-06-07T11:${String(index + 1).padStart(2, "0")}:00.000Z`;
+    if (index % 2 === 0) {
+      toggleStepCompletion(run, template, step.id, timestamp);
+    } else {
+      toggleStepNotApplicable(run, template, step.id, timestamp);
+    }
+  });
+
+  assert.equal(run.status, "completed");
+  assert.equal(calculateProgress(run, template).percent, 100);
+
+  // Reopening an N/A step reactivates the run.
+  toggleStepNotApplicable(run, template, "EP-002", "2026-06-07T12:00:00.000Z");
+  assert.equal(run.status, "active");
+  assert.equal(run.completedAt, null);
 });
 
 test("notes normalize tags and mock attachments can be removed", () => {

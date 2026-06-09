@@ -2,7 +2,7 @@ import {
   PROCEDURE_TEMPLATES,
   getTemplate,
   loadProcedureTemplates
-} from "./templates.js?v=13";
+} from "./templates.js?v=14";
 import {
   NOTE_TAGS,
   addMockAttachment,
@@ -12,13 +12,15 @@ import {
   createGeneratedExport,
   createRun,
   getSequentialAccess,
+  isStepResolved,
   nowIso,
   recordExport,
   removeAttachment,
   toggleStepCompletion,
+  toggleStepNotApplicable,
   updateStepNotes,
   validateTemplates
-} from "./core.js?v=13";
+} from "./core.js?v=14";
 import {
   deleteExport,
   getExport,
@@ -26,7 +28,7 @@ import {
   getAllRuns,
   saveExport,
   saveRun
-} from "./storage.js?v=13";
+} from "./storage.js?v=14";
 
 const state = {
   currentScreen: "home",
@@ -35,6 +37,8 @@ const state = {
   selectedTemplateId: null,
   currentRunId: null,
   selectedStepIndex: 0,
+  stepImageIndex: 0,
+  procedureFocusIndex: null,
   generatedExports: [],
   currentExportId: null,
   noteDraftTag: "",
@@ -106,6 +110,10 @@ function getSelectedStep() {
   return getCurrentTemplate()?.steps[state.selectedStepIndex] || null;
 }
 
+function getSelectedStepImages() {
+  return getSelectedStep()?.images || [];
+}
+
 function getStepAccess(stepIndex = state.selectedStepIndex) {
   const run = getCurrentRun();
   const template = getCurrentTemplate();
@@ -128,6 +136,16 @@ function setScreen(screenId, options = {}) {
   renderScreen(screenId);
 
   requestAnimationFrame(() => {
+    if (screenId === "procedure" && state.procedureFocusIndex !== null) {
+      const target = screens.procedure.querySelector(
+        `.checklist-row[data-index="${state.procedureFocusIndex}"]`
+      );
+      state.procedureFocusIndex = null;
+      if (target) {
+        focusElement(target);
+        return;
+      }
+    }
     focusFirst(screens[screenId]);
   });
 }
@@ -135,6 +153,7 @@ function setScreen(screenId, options = {}) {
 function goBack() {
   if (state.currentScreen === "step-detail") {
     saveNoteDraft({ silent: true });
+    setProcedureReturnFocus();
   }
   const previous = state.screenHistory.pop();
   if (previous) {
@@ -142,6 +161,20 @@ function goBack() {
   } else if (state.currentScreen !== "home") {
     setScreen("home", { addToHistory: false });
   }
+}
+
+// When leaving a step back to the checklist, place the selector on the next step
+// if the step we came from is resolved (completed or N/A); otherwise keep the
+// selector on that still-pending step.
+function setProcedureReturnFocus() {
+  const run = getCurrentRun();
+  const template = getCurrentTemplate();
+  if (!run || !template) return;
+  const index = state.selectedStepIndex;
+  const stepState = run.stepStates[template.steps[index]?.id];
+  const lastIndex = template.steps.length - 1;
+  state.procedureFocusIndex =
+    isStepResolved(stepState) && index < lastIndex ? index + 1 : index;
 }
 
 function goHome() {
@@ -381,43 +414,45 @@ function renderProcedure() {
   const progress = calculateProgress(run, template);
   document.getElementById("procedure-title").textContent = run.name;
   document.getElementById("procedure-run-id").textContent = displayRunId(run.id);
-  const status = document.getElementById("procedure-status");
-  status.textContent = run.status[0].toUpperCase() + run.status.slice(1);
-  status.className = `status-label ${run.status}`;
   document.getElementById("procedure-progress-text").textContent =
-    `${progress.completed} / ${progress.total} complete`;
+    `${progress.resolved} / ${progress.total} complete`;
   document.getElementById("procedure-progress-percent").textContent = `${progress.percent}%`;
   document.getElementById("procedure-progress-fill").style.width = `${progress.percent}%`;
 
   document.getElementById("procedure-step-list").innerHTML = template.steps.map((step, index) => {
     const stepState = run.stepStates[step.id];
     const access = getSequentialAccess(run, template, index);
-    const reopened = !stepState.completed && stepState.reopenCount > 0;
-    const policyClass = !access.canView ? "locked" : !access.canEdit ? "preview-only" : "";
-    const stateClass = stepState.completed ? "completed" : reopened ? "reopened" : policyClass;
+    const reopened = !isStepResolved(stepState) && stepState.reopenCount > 0;
+    // Upcoming, not-yet-reachable steps in a sequential run are dimmed but still
+    // openable for preview.
+    const upcoming = access.sequential && !access.canEdit && !isStepResolved(stepState);
+    let stateClass = "";
+    if (stepState.completed) stateClass = "completed";
+    else if (stepState.notApplicable) stateClass = "not-applicable";
+    else if (reopened) stateClass = "reopened";
+    else if (upcoming) stateClass = "upcoming";
     const stateIcon = stepState.completed
       ? iconMarkup("check")
-      : reopened
-        ? iconMarkup("rotate-ccw")
-        : !access.canView
-          ? iconMarkup("lock")
-          : !access.canEdit
-            ? iconMarkup("eye")
-            : "";
+      : stepState.notApplicable
+        ? iconMarkup("minus")
+        : reopened
+          ? iconMarkup("rotate-ccw")
+          : "";
     const metadata = stepState.completed
       ? `Completed ${formatShortDate(stepState.completedAt)}`
-      : reopened
-        ? `Reopened · ${stepState.reopenCount} event${stepState.reopenCount === 1 ? "" : "s"}`
-        : stepState.noteText || stepState.tags.length || stepState.attachments.length
-          ? "Evidence recorded"
-          : "Pending";
+      : stepState.notApplicable
+        ? "Marked not applicable"
+        : reopened
+          ? `Reopened · ${stepState.reopenCount} event${stepState.reopenCount === 1 ? "" : "s"}`
+          : stepState.noteText || stepState.tags.length || stepState.attachments.length
+            ? "Evidence recorded"
+            : "Pending";
     const noteTag = stepState.tags[0] || "";
     return `
       <button
         class="checklist-row focusable ${stateClass}"
         data-action="open-step"
         data-index="${index}"
-        aria-disabled="${!access.canView}"
       >
         <span class="step-state-icon" aria-hidden="true">${stateIcon}</span>
         <span class="step-code">${escapeHtml(step.id)}</span>
@@ -427,11 +462,17 @@ function renderProcedure() {
         </span>
         <span class="step-row-flags">
           ${noteTag ? `<span class="note-tag-badge ${noteTagClass(noteTag)}">${escapeHtml(noteTag)}</span>` : ""}
-          ${access.sequential && !stepState.completed && !access.canView ? '<span class="policy-badge locked">Locked</span>' : ""}
-          ${access.sequential && !stepState.completed && access.canView && !access.canEdit ? '<span class="policy-badge preview">Preview</span>' : ""}
         </span>
       </button>`;
   }).join("");
+}
+
+function completionSubtext(run, stepState, access) {
+  if (stepState.completed) return formatDateTime(stepState.completedAt);
+  if (run.status === "archived") return "Archived run is read-only";
+  if (!access.canEdit) return "Complete the preceding step before taking action";
+  if (stepState.notApplicable) return "Marked N/A — completing this step replaces the mark";
+  return "Completion records the current timestamp";
 }
 
 function renderStepDetail() {
@@ -443,20 +484,23 @@ function renderStepDetail() {
   const stepState = run.stepStates[step.id];
   const access = getStepAccess();
   const readOnly = run.status === "archived" || !access.canEdit;
-  const statusText = access.sequential && !access.canEdit
-    ? "Preview"
-    : stepState.completed
-    ? "Completed"
-    : stepState.reopenCount
-      ? "Reopened"
-      : "Pending";
-  const statusClass = access.sequential && !access.canEdit
-    ? "preview"
-    : stepState.completed
-      ? "completed"
-      : stepState.reopenCount
-        ? "active"
-        : "";
+  const preview = access.sequential && !access.canEdit;
+  let statusText = "Pending";
+  let statusClass = "";
+  if (preview) {
+    statusText = "Preview";
+    statusClass = "preview";
+  } else if (stepState.completed) {
+    statusText = "Completed";
+    statusClass = "completed";
+  } else if (stepState.notApplicable) {
+    statusText = "N/A";
+    statusClass = "na";
+  } else if (stepState.reopenCount) {
+    statusText = "Reopened";
+    statusClass = "active";
+  }
+  const images = step.images || [];
 
   const selectedTag = NOTE_TAGS.find((tag) => stepState.tags.includes(tag)) || "";
   state.noteDraftTag = selectedTag;
@@ -474,13 +518,14 @@ function renderStepDetail() {
         <h2>${escapeHtml(step.title)}</h2>
       </div>
       <p class="step-description">${escapeHtml(step.description)}</p>
-      ${step.image ? `
+      ${images.length ? `
         <button class="step-reference-card focusable" data-action="open-step-image">
-          <img src="${escapeHtml(step.image.src)}" alt="">
+          <span class="step-reference-thumb${images.length > 1 ? " stacked" : ""}">
+            <img src="${escapeHtml(images[0].src)}" alt="">
+          </span>
           <span class="step-reference-copy">
-            <small>Reference image</small>
-            <strong>${escapeHtml(step.image.caption)}</strong>
-            <span>${escapeHtml(step.image.credit)}</span>
+            <strong class="step-reference-title">${images.length === 1 ? "Image" : `${images.length} images`}</strong>
+            <span class="step-reference-desc">${escapeHtml(images[0].caption)}</span>
           </span>
           ${iconMarkup("maximize-2", "step-reference-expand")}
         </button>` : ""}
@@ -493,14 +538,17 @@ function renderStepDetail() {
         <span class="completion-check" aria-hidden="true">${stepState.completed ? iconMarkup("check") : ""}</span>
         <span>
           <strong>${stepState.completed ? "Step completed" : "Mark step complete"}</strong>
-          <small>${stepState.completed
-            ? formatDateTime(stepState.completedAt)
-            : run.status === "archived"
-              ? "Archived run is read-only"
-              : !access.canEdit
-                ? "Complete the preceding step before taking action"
-                : "Completion records the current timestamp"}</small>
+          <small>${completionSubtext(run, stepState, access)}</small>
         </span>
+      </button>
+      <button
+        class="na-control focusable ${stepState.notApplicable ? "active" : ""}"
+        data-action="toggle-not-applicable"
+        aria-pressed="${stepState.notApplicable}"
+        ${readOnly ? "disabled" : ""}
+      >
+        <span class="na-icon" aria-hidden="true">${iconMarkup(stepState.notApplicable ? "minus" : "ban")}</span>
+        <span>${stepState.notApplicable ? "Marked not applicable (N/A)" : "Mark not applicable (N/A)"}</span>
       </button>
     </article>
 
@@ -562,26 +610,54 @@ function renderStepDetail() {
   const previousButton = document.getElementById("previous-step-button");
   const nextButton = document.getElementById("next-step-button");
   previousButton.disabled = state.selectedStepIndex === 0;
-  const nextIndex = state.selectedStepIndex + 1;
-  nextButton.disabled =
-    nextIndex >= template.steps.length ||
-    !getSequentialAccess(run, template, nextIndex).canView;
+  nextButton.disabled = state.selectedStepIndex >= template.steps.length - 1;
 }
 
 function renderStepImage() {
   const step = getSelectedStep();
-  if (!step?.image) {
+  const images = getSelectedStepImages();
+  if (!step || !images.length) {
     goBack();
     return;
   }
 
+  const total = images.length;
+  if (state.stepImageIndex >= total) state.stepImageIndex = 0;
+  if (state.stepImageIndex < 0) state.stepImageIndex = total - 1;
+  const current = images[state.stepImageIndex];
+
   document.getElementById("step-image-title").textContent = step.title;
-  document.getElementById("step-image-step").textContent = `${step.id} · Reference image`;
+  document.getElementById("step-image-step").textContent =
+    total > 1
+      ? `${step.id} · Image ${state.stepImageIndex + 1} of ${total}`
+      : `${step.id} · Reference image`;
   const image = document.getElementById("step-image-full");
-  image.src = step.image.src;
-  image.alt = step.image.alt;
-  document.getElementById("step-image-caption").textContent = step.image.caption;
-  document.getElementById("step-image-credit").textContent = `Credit: ${step.image.credit}`;
+  image.src = current.src;
+  image.alt = current.alt;
+  document.getElementById("step-image-caption").textContent = current.caption;
+  document.getElementById("step-image-credit").textContent = `Credit: ${current.credit}`;
+
+  const counter = document.getElementById("step-image-counter");
+  const dots = document.getElementById("step-image-dots");
+  const rail = document.getElementById("step-image-rail");
+  if (total > 1) {
+    rail.classList.remove("hidden");
+    counter.textContent = `${state.stepImageIndex + 1} / ${total}`;
+    dots.innerHTML = images
+      .map((_, index) => `<span class="image-dot${index === state.stepImageIndex ? " active" : ""}"></span>`)
+      .join("");
+  } else {
+    rail.classList.add("hidden");
+    counter.textContent = "";
+    dots.innerHTML = "";
+  }
+}
+
+function changeStepImage(delta) {
+  const images = getSelectedStepImages();
+  if (images.length < 2) return;
+  state.stepImageIndex = (state.stepImageIndex + delta + images.length) % images.length;
+  renderStepImage();
 }
 
 function renderEvidence(attachments, readOnly) {
@@ -711,6 +787,10 @@ function auditEventView(event, step) {
       return { title: "Step completed", detail: stepLabel, className: "complete" };
     case "step_reopened":
       return { title: "Step reopened", detail: stepLabel, className: "reopen" };
+    case "step_marked_na":
+      return { title: "Step marked N/A", detail: stepLabel, className: "" };
+    case "step_na_cleared":
+      return { title: "N/A mark cleared", detail: stepLabel, className: "" };
     case "run_completed":
       return { title: "Run completed", detail: "All procedure steps were complete.", className: "complete" };
     case "run_reopened":
@@ -903,19 +983,22 @@ async function handleAction(action, element) {
       setScreen("procedure");
       break;
     case "open-step":
-      {
-        const requestedIndex = Number(element.dataset.index);
-        const access = getStepAccess(requestedIndex);
-        if (!access.canView) {
-          showToast("Complete earlier steps before opening this step");
-          break;
-        }
-        state.selectedStepIndex = requestedIndex;
-      }
+      state.selectedStepIndex = Number(element.dataset.index);
       setScreen("step-detail");
       break;
     case "open-step-image":
-      if (getSelectedStep()?.image) setScreen("step-image");
+      if (getSelectedStepImages().length) {
+        state.stepImageIndex = 0;
+        setScreen("step-image");
+      }
+      break;
+    case "step-image-prev":
+      changeStepImage(-1);
+      focusElement(document.getElementById("step-image-prev"));
+      break;
+    case "step-image-next":
+      changeStepImage(1);
+      focusElement(document.getElementById("step-image-next"));
       break;
     case "previous-step":
       await saveNoteDraft({ silent: true });
@@ -926,12 +1009,7 @@ async function handleAction(action, element) {
     case "next-step": {
       await saveNoteDraft({ silent: true });
       const template = getCurrentTemplate();
-      const nextIndex = Math.min(template.steps.length - 1, state.selectedStepIndex + 1);
-      if (!getStepAccess(nextIndex).canView) {
-        showToast("Complete the current step before moving ahead");
-        break;
-      }
-      state.selectedStepIndex = nextIndex;
+      state.selectedStepIndex = Math.min(template.steps.length - 1, state.selectedStepIndex + 1);
       renderStepDetail();
       focusFirst(screens["step-detail"]);
       break;
@@ -950,6 +1028,22 @@ async function handleAction(action, element) {
       await persistCurrentRun();
       renderStepDetail();
       showToast(wasCompleted ? "Step reopened; prior event retained" : "Step completed", wasCompleted ? "" : "success");
+      break;
+    }
+    case "toggle-not-applicable": {
+      await saveNoteDraft({ silent: true });
+      const run = getCurrentRun();
+      const template = getCurrentTemplate();
+      const step = getSelectedStep();
+      if (!getStepAccess().canEdit) {
+        showToast("Complete the preceding step before taking action");
+        break;
+      }
+      const wasNotApplicable = run.stepStates[step.id].notApplicable;
+      toggleStepNotApplicable(run, template, step.id);
+      await persistCurrentRun();
+      renderStepDetail();
+      showToast(wasNotApplicable ? "N/A mark removed" : "Step marked not applicable", wasNotApplicable ? "" : "success");
       break;
     }
     case "toggle-note-menu":
@@ -1240,6 +1334,19 @@ function setupEvents() {
       if (event.key === "ArrowUp" || event.key === "ArrowDown") {
         event.preventDefault();
         moveExportFocus(event.key === "ArrowUp" ? "up" : "down", activeElement);
+        return;
+      }
+    }
+
+    if (state.currentScreen === "step-image" && getSelectedStepImages().length > 1) {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        changeStepImage(-1);
+        return;
+      }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        changeStepImage(1);
         return;
       }
     }

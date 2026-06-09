@@ -9,7 +9,7 @@
   <title>AIT Procedure Runner</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="src/styles.css?v=13">
+  <link rel="stylesheet" href="src/styles.css?v=14">
 </head>
 <body>
   <!-- Bundled from lucide-static v1.17.0 (ISC); no runtime network dependency. -->
@@ -97,6 +97,13 @@
       <path d="m21 3-7 7"></path>
       <path d="m3 21 7-7"></path>
       <path d="M9 21H3v-6"></path>
+    </symbol>
+    <symbol id="icon-minus" viewBox="0 0 24 24">
+      <path d="M5 12h14"></path>
+    </symbol>
+    <symbol id="icon-ban" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10"></circle>
+      <path d="m4.9 4.9 14.2 14.2"></path>
     </symbol>
   </svg>
   <main id="app" aria-live="polite">
@@ -193,7 +200,6 @@
           <h1 id="procedure-title">Procedure</h1>
           <p id="procedure-run-id">Run</p>
         </div>
-        <span id="procedure-status" class="status-label">Active</span>
       </header>
       <div class="progress-panel">
         <div class="progress-copy">
@@ -325,14 +331,22 @@
           <h1 id="step-image-title">Reference image</h1>
           <p id="step-image-step">Procedure step</p>
         </div>
+        <span id="step-image-counter" class="image-counter"></span>
       </header>
       <figure class="step-image-viewer">
-        <img id="step-image-full" alt="">
+        <div class="step-image-stage">
+          <img id="step-image-full" alt="">
+        </div>
         <figcaption>
+          <span id="step-image-dots" class="image-dots" aria-hidden="true"></span>
           <strong id="step-image-caption"></strong>
           <span id="step-image-credit"></span>
         </figcaption>
       </figure>
+      <nav id="step-image-rail" class="action-rail two-up hidden">
+        <button id="step-image-prev" class="rail-button focusable" data-action="step-image-prev">Previous</button>
+        <button id="step-image-next" class="rail-button focusable" data-action="step-image-next">Next</button>
+      </nav>
     </section>
   </main>
 
@@ -346,6 +360,6 @@
   </div>
 
   <div id="toast" class="toast" role="status"></div>
-  <script type="module" src="src/app.js?v=13"></script>
+  <script type="module" src="src/app.js?v=14"></script>
 </body>
 </html>

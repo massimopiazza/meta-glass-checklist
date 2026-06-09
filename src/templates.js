@@ -17,12 +17,10 @@ export async function loadProcedureTemplates() {
       const packageBase = path.slice(0, path.lastIndexOf("/") + 1);
       template.steps = template.steps.map((step) => ({
         ...step,
-        image: step.image
-          ? {
-              ...step.image,
-              src: `${packageBase}${step.image.src.replace(/^\.\//, "")}`
-            }
-          : null
+        images: (step.images || []).map((image) => ({
+          ...image,
+          src: `${packageBase}${image.src.replace(/^\.\//, "")}`
+        }))
       }));
       return template;
     })

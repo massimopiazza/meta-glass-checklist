@@ -2,6 +2,12 @@ const NOTE_TAGS = ["Nominal", "Observation", "Anomaly", "Hold", "Retest"];
 
 export { NOTE_TAGS };
 
+// A step is "resolved" once it has been completed or explicitly marked not
+// applicable. Both states satisfy the sequential gate and run completion.
+export function isStepResolved(stepState) {
+  return Boolean(stepState?.completed || stepState?.notApplicable);
+}
+
 export function createId(prefix = "id") {
   if (globalThis.crypto?.randomUUID) {
     return `${prefix}-${globalThis.crypto.randomUUID()}`;
@@ -27,6 +33,8 @@ export function createRun(template, name, timestamp = nowIso()) {
       completedAt: null,
       completionCount: 0,
       reopenCount: 0,
+      notApplicable: false,
+      notApplicableAt: null,
       tags: [],
       noteText: "",
       attachments: []
@@ -62,17 +70,29 @@ export function createRun(template, name, timestamp = nowIso()) {
 
 export function calculateProgress(run, template) {
   const total = template.steps.length;
-  const completed = template.steps.reduce((count, step) => {
-    return count + (run.stepStates[step.id]?.completed ? 1 : 0);
-  }, 0);
+  let completed = 0;
+  let notApplicable = 0;
+  for (const step of template.steps) {
+    const stepState = run.stepStates[step.id];
+    if (stepState?.completed) completed += 1;
+    else if (stepState?.notApplicable) notApplicable += 1;
+  }
+  // "Resolved" steps (completed or N/A) count as done for the progress bar,
+  // sequential gating, and automatic run completion.
+  const resolved = completed + notApplicable;
 
   return {
     completed,
+    notApplicable,
+    resolved,
     total,
-    percent: total ? Math.round((completed / total) * 100) : 0
+    percent: total ? Math.round((resolved / total) * 100) : 0
   };
 }
 
+// Sequential procedures expose every step for preview. Only the current step in
+// the sequence (the first unresolved step) and the resolved steps behind it are
+// editable; upcoming steps are read-only until the sequence reaches them.
 export function getSequentialAccess(run, template, stepIndex) {
   const sequential = Boolean(template.executionPolicy?.sequential);
   if (!sequential || run.status === "completed") {
@@ -80,18 +100,18 @@ export function getSequentialAccess(run, template, stepIndex) {
   }
 
   const firstIncompleteIndex = template.steps.findIndex((step) => {
-    return !run.stepStates[step.id]?.completed;
+    return !isStepResolved(run.stepStates[step.id]);
   });
   if (firstIncompleteIndex < 0) {
     return { sequential, firstIncompleteIndex, canView: true, canEdit: true };
   }
 
-  const previewOffset = template.executionPolicy?.allowNextStepPreview === false ? 0 : 1;
-  const stepCompleted = Boolean(run.stepStates[template.steps[stepIndex]?.id]?.completed);
   return {
     sequential,
     firstIncompleteIndex,
-    canView: stepCompleted || stepIndex <= firstIncompleteIndex + previewOffset,
+    // Every step can be opened and previewed; only the frontier and the
+    // resolved steps before it accept edits.
+    canView: true,
     canEdit: stepIndex <= firstIncompleteIndex
   };
 }
@@ -124,6 +144,18 @@ export function toggleStepCompletion(run, template, stepId, timestamp = nowIso()
       });
     }
   } else {
+    // Completing a step supersedes any not-applicable mark.
+    if (stepState.notApplicable) {
+      stepState.notApplicable = false;
+      stepState.notApplicableAt = null;
+      run.audit.push({
+        id: createId("event"),
+        type: "step_na_cleared",
+        at: timestamp,
+        stepId,
+        details: { reason: "Step was completed." }
+      });
+    }
     stepState.completed = true;
     stepState.completedAt = timestamp;
     stepState.completionCount += 1;
@@ -135,20 +167,84 @@ export function toggleStepCompletion(run, template, stepId, timestamp = nowIso()
       details: { completionCount: stepState.completionCount }
     });
 
-    const progress = calculateProgress(run, template);
-    if (progress.completed === progress.total) {
-      run.status = "completed";
-      run.completedAt = timestamp;
-      run.audit.push({
-        id: createId("event"),
-        type: "run_completed",
-        at: timestamp
-      });
-    }
+    maybeCompleteRun(run, template, timestamp);
   }
 
   run.updatedAt = timestamp;
   return run;
+}
+
+// Marks or clears the not-applicable state for a step. A not-applicable step is
+// "resolved": it satisfies the sequential gate and counts toward run completion,
+// but is never recorded as completed.
+export function toggleStepNotApplicable(run, template, stepId, timestamp = nowIso()) {
+  const stepState = run.stepStates[stepId];
+  if (!stepState) {
+    throw new Error(`Unknown step: ${stepId}`);
+  }
+
+  if (stepState.notApplicable) {
+    stepState.notApplicable = false;
+    stepState.notApplicableAt = null;
+    run.audit.push({
+      id: createId("event"),
+      type: "step_na_cleared",
+      at: timestamp,
+      stepId
+    });
+
+    if (run.status === "completed") {
+      run.status = "active";
+      run.completedAt = null;
+      run.audit.push({
+        id: createId("event"),
+        type: "run_reopened",
+        at: timestamp,
+        details: { reason: "A not-applicable step was reopened." }
+      });
+    }
+  } else {
+    // Marking a completed step as not applicable supersedes its completion.
+    if (stepState.completed) {
+      stepState.completed = false;
+      stepState.completedAt = null;
+      run.audit.push({
+        id: createId("event"),
+        type: "step_reopened",
+        at: timestamp,
+        stepId,
+        details: { reason: "Step was marked not applicable." }
+      });
+    }
+    stepState.notApplicable = true;
+    stepState.notApplicableAt = timestamp;
+    run.audit.push({
+      id: createId("event"),
+      type: "step_marked_na",
+      at: timestamp,
+      stepId
+    });
+
+    maybeCompleteRun(run, template, timestamp);
+  }
+
+  run.updatedAt = timestamp;
+  return run;
+}
+
+// Promotes an active run to completed once every step is resolved.
+function maybeCompleteRun(run, template, timestamp) {
+  if (run.status === "completed") return;
+  const progress = calculateProgress(run, template);
+  if (progress.resolved === progress.total) {
+    run.status = "completed";
+    run.completedAt = timestamp;
+    run.audit.push({
+      id: createId("event"),
+      type: "run_completed",
+      at: timestamp
+    });
+  }
 }
 
 export function updateStepNotes(run, stepId, tag, noteText, timestamp = nowIso()) {
@@ -280,6 +376,8 @@ export function buildStepCsv(run, template) {
     "completed_at",
     "completion_count",
     "reopen_count",
+    "not_applicable",
+    "not_applicable_at",
     "note_tag",
     "note_text",
     "mock_attachment_count",
@@ -300,6 +398,8 @@ export function buildStepCsv(run, template) {
       state.completedAt,
       state.completionCount,
       state.reopenCount,
+      state.notApplicable,
+      state.notApplicableAt,
       state.tags.join("|"),
       state.noteText,
       state.attachments.length,
@@ -365,19 +465,20 @@ export function validateTemplates(templates) {
       if (!step.title || !step.description) {
         errors.push(`Incomplete step ${step.id} in ${template.id}`);
       }
-      if (!Object.hasOwn(step, "image")) {
-        errors.push(`Missing image property on ${step.id} in ${template.id}`);
-      } else if (
-        step.image !== null &&
-        (
-          !step.image?.src ||
-          !step.image?.alt ||
-          !step.image?.caption ||
-          !step.image?.credit ||
-          !step.image?.sourceUrl
-        )
-      ) {
-        errors.push(`Incomplete image metadata on ${step.id} in ${template.id}`);
+      if (!Array.isArray(step.images)) {
+        errors.push(`Missing images array on ${step.id} in ${template.id}`);
+      } else {
+        for (const image of step.images) {
+          if (
+            !image?.src ||
+            !image?.alt ||
+            !image?.caption ||
+            !image?.credit ||
+            !image?.sourceUrl
+          ) {
+            errors.push(`Incomplete image metadata on ${step.id} in ${template.id}`);
+          }
+        }
       }
     }
   }

@@ -13,103 +13,114 @@
       "id": "RF-001",
       "title": "Confirm RF authorization",
       "description": "Verify frequency coordination, facility approval, RF safety controls, transmitter authorization, command-security provisions, test roles, and stop-work criteria.",
-      "image": null
+      "images": []
     },
     {
       "id": "RF-002",
       "title": "Verify spacecraft state",
       "description": "Confirm spacecraft configuration, grounding, power source, battery constraints, transmitter inhibits, safing plugs, software load, command path, and RF EGSE readiness.",
-      "image": null
+      "images": []
     },
     {
       "id": "RF-003",
       "title": "Verify antenna hats",
       "description": "Confirm each hat identity, applicable antenna and band, polarization, serial number, calibration status, characterized coupling factor, connector condition, and cleanliness.",
-      "image": {
-        "src": "assets/antenna-prototype-test.jpg",
-        "alt": "Full-scale Europa Clipper high-gain antenna prototype undergoing range testing.",
-        "caption": "Reference antenna test configuration for reviewing polarization, mechanical orientation, clearances, and interface identification.",
-        "credit": "NASA/Langley",
-        "sourceUrl": "https://science.nasa.gov/photojournal/europa-clipper-antenna-prototype/"
-      }
+      "images": [
+        {
+          "src": "assets/antenna-prototype-test.jpg",
+          "alt": "Full-scale Europa Clipper high-gain antenna prototype undergoing range testing.",
+          "caption": "Reference antenna test configuration for reviewing polarization, mechanical orientation, clearances, and interface identification.",
+          "credit": "NASA/Langley",
+          "sourceUrl": "https://science.nasa.gov/photojournal/europa-clipper-antenna-prototype/"
+        },
+        {
+          "src": "assets/mro-antenna-gimbal-test.jpg",
+          "alt": "Technicians preparing the Mars Reconnaissance Orbiter high-gain antenna for a gimbal range-of-motion test in a payload servicing facility.",
+          "caption": "Second reference configuration showing a spacecraft high-gain antenna and gimbal being prepared for a range-of-motion test, useful for checking antenna orientation, clearances, and interface access.",
+          "credit": "NASA/KSC",
+          "sourceUrl": "https://images.nasa.gov/details/05pd1113"
+        }
+      ]
     },
     {
       "id": "RF-004",
       "title": "Inspect antenna interfaces",
       "description": "Inspect flight antenna surfaces, conductive gaskets, ground planes, nearby thermal blankets, cable interfaces, connector savers, and mechanical keep-out zones.",
-      "image": null
+      "images": []
     },
     {
       "id": "RF-005",
       "title": "Install antenna hats",
       "description": "Install and secure each hat using the approved interface and torque or retention method. Verify alignment and clearance without loading, scratching, or contaminating the flight antenna.",
-      "image": null
+      "images": []
     },
     {
       "id": "RF-006",
       "title": "Connect RF EGSE",
       "description": "Connect hats to the authorized RF rack using identified cables, calibrated attenuation, power limiting, directional devices, switching, DC blocks where required, and strain relief.",
-      "image": null
+      "images": []
     },
     {
       "id": "RF-007",
       "title": "Verify path loss",
       "description": "With spacecraft transmitters inhibited, verify continuity, end-to-end insertion loss, switch state, isolation, termination, instrumentation protection, and safe injected-signal levels.",
-      "image": {
-        "src": "assets/rf-anechoic-chamber.jpg",
-        "alt": "Roman Space Telescope high-gain antenna in a blue RF anechoic chamber.",
-        "caption": "Reference RF measurement environment showing absorber treatment used to suppress reflections during antenna characterization.",
-        "credit": "NASA/Chris Gunn",
-        "sourceUrl": "https://www.nasa.gov/image-article/high-gain-antenna-nasas-roman-mission-clears-environmental-tests/"
-      }
+      "images": [
+        {
+          "src": "assets/rf-anechoic-chamber.jpg",
+          "alt": "Roman Space Telescope high-gain antenna in a blue RF anechoic chamber.",
+          "caption": "Reference RF measurement environment showing absorber treatment used to suppress reflections during antenna characterization.",
+          "credit": "NASA/Chris Gunn",
+          "sourceUrl": "https://www.nasa.gov/image-article/high-gain-antenna-nasas-roman-mission-clears-environmental-tests/"
+        }
+      ]
     },
     {
       "id": "RF-008",
       "title": "Confirm RF containment",
       "description": "Using the approved low-level source, verify the hat installation and facility controls provide acceptable leakage and do not create unintended coupling into adjacent spacecraft or facility systems.",
-      "image": null
+      "images": []
     },
     {
       "id": "RF-009",
       "title": "Verify uplink acquisition",
       "description": "Apply the authorized low-level uplink and verify receiver acquisition, AGC or RSSI response, lock indication, command decode, command counters, and expected telemetry response.",
-      "image": null
+      "images": []
     },
     {
       "id": "RF-010",
       "title": "Characterize receiver path",
       "description": "At approved test points, record frequency offset, modulation or data-rate behavior, link-quality telemetry, receiver switching, and any commanded threshold or redundancy checks.",
-      "image": null
+      "images": []
     },
     {
       "id": "RF-011",
       "title": "Verify downlink",
       "description": "After authorization, enable the selected transmitter and measure coupled power, carrier frequency, modulation, spectral behavior, telemetry quality, and spacecraft housekeeping response.",
-      "image": null
+      "images": []
     },
     {
       "id": "RF-012",
       "title": "Exercise redundant paths",
       "description": "Verify the prescribed combinations of redundant receivers, transmitters, transponders, antenna ports, RF switches, diplexers, and cross-strapped signal paths.",
-      "image": null
+      "images": []
     },
     {
       "id": "RF-013",
       "title": "Verify contingency behavior",
       "description": "Execute approved command-loss, communication timeout, safe-mode, transmitter-inhibit, and controlled recovery cases while monitoring fault protection and configuration telemetry.",
-      "image": null
+      "images": []
     },
     {
       "id": "RF-014",
       "title": "Inhibit and disconnect",
       "description": "Confirm all spacecraft transmitters are inhibited and injected RF sources are off before disconnecting EGSE, removing cables, releasing strain relief, or handling antenna hats.",
-      "image": null
+      "images": []
     },
     {
       "id": "RF-015",
       "title": "Restore flight configuration",
       "description": "Remove hats, inspect flight antennas and adjacent surfaces, restore covers and flight configuration, reconcile hardware and calibration records, archive data, and document anomalies.",
-      "image": null
+      "images": []
     }
   ],
   "ownerRole": "Test Conductor",

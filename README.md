@@ -58,34 +58,39 @@ npm run check
 
 Each template has its own folder. `template.json` contains template metadata, execution policy, and procedure steps. Assets referenced by that template stay in the adjacent `assets/` folder.
 
-Every step declares an `image` property. Use `null` when no descriptive media is needed:
+Every step declares an `images` array. Use `[]` when no descriptive media is needed; add multiple entries to attach several reference images to one step:
 
 ```json
 {
   "id": "EP-010",
   "title": "Authorize ignition",
   "description": "Perform the authorized ignition sequence.",
-  "image": {
-    "src": "assets/ion-thruster-plume.jpg",
-    "alt": "Xenon ion thruster operating in a vacuum chamber.",
-    "caption": "Reference view of a xenon ion engine operating under vacuum.",
-    "credit": "NASA/JPL",
-    "sourceUrl": "https://science.nasa.gov/photojournal/deep-space-1s-ion-engine-2/"
-  }
+  "images": [
+    {
+      "src": "assets/ion-thruster-plume.jpg",
+      "alt": "Xenon ion thruster operating in a vacuum chamber.",
+      "caption": "Reference view of a xenon ion engine operating under vacuum.",
+      "credit": "NASA/JPL",
+      "sourceUrl": "https://science.nasa.gov/photojournal/deep-space-1s-ion-engine-2/"
+    }
+  ]
 }
 ```
 
-The step detail UI renders the reference card only when `image` is not `null`.
+The step detail UI renders the reference card only when `images` is non-empty. It is labeled `Image` for a single entry or `N images` for several, and the full-screen viewer pages through multiple images with the left and right controls.
 
 ## Reference Imagery
 
 The demonstration images are locally optimized copies of NASA media and retain credit and source metadata in their template files:
 
 - Electric propulsion chamber: NASA, [Journey to Space in a Vacuum Chamber](https://www.nasa.gov/image-article/journey-space-vacuum-chamber/)
+- Space Environments Complex thermal-vacuum facility: NASA/Glenn Research Center, [Orion at the Space Environments Complex](https://images.nasa.gov/details/GRC-2020-C-03345)
 - Ion thruster plume: NASA/JPL, [Deep Space 1's Ion Engine](https://science.nasa.gov/photojournal/deep-space-1s-ion-engine-2/)
+- NEXT ion engine in vacuum chamber: NASA/Glenn Research Center, [NEXT Ion Engine Wear Test](https://images.nasa.gov/details/GRC-2003-C-00585)
 - Imaging spectrometer TVAC installation: NASA/JPL-Caltech, [Imaging Spectrometer Inside Thermal Vacuum Chamber](https://science.nasa.gov/photojournal/imaging-spectrometer-inside-thermal-vacuum-chamber/)
 - Coronagraph optical test chamber: NASA/JPL-Caltech, [Coronagraph Test Chamber](https://science.nasa.gov/photojournal/coronagraph-test-chamber/)
 - Antenna prototype test: NASA/Langley, [Europa Clipper Antenna Prototype](https://science.nasa.gov/photojournal/europa-clipper-antenna-prototype/)
+- High-gain antenna gimbal test: NASA/KSC, [Mars Reconnaissance Orbiter Antenna Test](https://images.nasa.gov/details/05pd1113)
 - RF anechoic chamber: NASA/Chris Gunn, [Roman High-Gain Antenna Environmental Tests](https://www.nasa.gov/image-article/high-gain-antenna-nasas-roman-mission-clears-environmental-tests/)
 
 NASA media use remains subject to the [NASA Brand Center and media guidelines](https://www.nasa.gov/nasa-brand-center/).
