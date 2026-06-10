@@ -2,7 +2,7 @@ import {
   PROCEDURE_TEMPLATES,
   getTemplate,
   loadProcedureTemplates
-} from "./templates.js?v=16";
+} from "./templates.js?v=17";
 import {
   NOTE_TAGS,
   addMockAttachment,
@@ -20,7 +20,7 @@ import {
   toggleStepNotApplicable,
   updateStepNotes,
   validateTemplates
-} from "./core.js?v=16";
+} from "./core.js?v=17";
 import {
   deleteExport,
   getExport,
@@ -28,7 +28,7 @@ import {
   getAllRuns,
   saveExport,
   saveRun
-} from "./storage.js?v=16";
+} from "./storage.js?v=17";
 
 const state = {
   currentScreen: "home",
@@ -1393,7 +1393,12 @@ function setupEvents() {
       }
       if (event.key === "ArrowLeft") {
         event.preventDefault();
-        if (onNa && completion) focusElement(completion);
+        if (onNa) {
+          if (completion) focusElement(completion);
+        } else {
+          // From the completion control, left moves to the header back button.
+          focusElement(detail.querySelector('[data-action="back"]'));
+        }
         return;
       }
       if (event.key === "ArrowUp" || event.key === "ArrowDown") {
