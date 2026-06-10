@@ -1,12 +1,12 @@
-const CACHE_NAME = "ait-procedure-runner-v14";
+const CACHE_NAME = "ait-procedure-runner-v16";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./src/styles.css?v=14",
-  "./src/app.js?v=14",
-  "./src/core.js?v=14",
-  "./src/storage.js?v=14",
-  "./src/templates.js?v=14",
+  "./src/styles.css?v=16",
+  "./src/app.js?v=16",
+  "./src/core.js?v=16",
+  "./src/storage.js?v=16",
+  "./src/templates.js?v=16",
   "./src/procedure-templates/ion-thruster-tvac-hotfire/template.json",
   "./src/procedure-templates/ion-thruster-tvac-hotfire/assets/vacuum-chamber.jpg",
   "./src/procedure-templates/ion-thruster-tvac-hotfire/assets/sec-thermal-vacuum-chamber.jpg",

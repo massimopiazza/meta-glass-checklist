@@ -2,7 +2,7 @@ import {
   PROCEDURE_TEMPLATES,
   getTemplate,
   loadProcedureTemplates
-} from "./templates.js?v=14";
+} from "./templates.js?v=16";
 import {
   NOTE_TAGS,
   addMockAttachment,
@@ -20,7 +20,7 @@ import {
   toggleStepNotApplicable,
   updateStepNotes,
   validateTemplates
-} from "./core.js?v=14";
+} from "./core.js?v=16";
 import {
   deleteExport,
   getExport,
@@ -28,7 +28,7 @@ import {
   getAllRuns,
   saveExport,
   saveRun
-} from "./storage.js?v=14";
+} from "./storage.js?v=16";
 
 const state = {
   currentScreen: "home",
@@ -195,7 +195,11 @@ function moveFocus(direction) {
   const container = modal.classList.contains("hidden") ? screens[state.currentScreen] : modal;
   const focusable = Array.from(
     container.querySelectorAll(".focusable:not([disabled]):not(.hidden)")
-  ).filter((element) => element.offsetParent !== null);
+  ).filter(
+    // The N/A button is paired with the completion control as a horizontal
+    // row: up/down skip it, and it is reached only via the right arrow.
+    (element) => element.offsetParent !== null && !element.classList.contains("na-control")
+  );
 
   if (!focusable.length) return;
   const currentIndex = focusable.indexOf(document.activeElement);
@@ -529,27 +533,31 @@ function renderStepDetail() {
           </span>
           ${iconMarkup("maximize-2", "step-reference-expand")}
         </button>` : ""}
-      <button
-        class="completion-control focusable ${stepState.completed ? "completed" : ""}"
-        data-action="toggle-completion"
-        aria-pressed="${stepState.completed}"
-        ${readOnly ? "disabled" : ""}
-      >
-        <span class="completion-check" aria-hidden="true">${stepState.completed ? iconMarkup("check") : ""}</span>
-        <span>
-          <strong>${stepState.completed ? "Step completed" : "Mark step complete"}</strong>
-          <small>${completionSubtext(run, stepState, access)}</small>
-        </span>
-      </button>
-      <button
-        class="na-control focusable ${stepState.notApplicable ? "active" : ""}"
-        data-action="toggle-not-applicable"
-        aria-pressed="${stepState.notApplicable}"
-        ${readOnly ? "disabled" : ""}
-      >
-        <span class="na-icon" aria-hidden="true">${iconMarkup(stepState.notApplicable ? "minus" : "ban")}</span>
-        <span>${stepState.notApplicable ? "Marked not applicable (N/A)" : "Mark not applicable (N/A)"}</span>
-      </button>
+      <div class="step-action-row">
+        <button
+          class="completion-control focusable ${stepState.completed ? "completed" : ""}"
+          data-action="toggle-completion"
+          aria-pressed="${stepState.completed}"
+          ${readOnly ? "disabled" : ""}
+        >
+          <span class="completion-check" aria-hidden="true">${stepState.completed ? iconMarkup("check") : ""}</span>
+          <span>
+            <strong>${stepState.completed ? "Step completed" : "Mark step complete"}</strong>
+            <small>${completionSubtext(run, stepState, access)}</small>
+          </span>
+        </button>
+        <button
+          class="na-control focusable ${stepState.notApplicable ? "active" : ""}"
+          data-action="toggle-not-applicable"
+          aria-pressed="${stepState.notApplicable}"
+          title="${stepState.notApplicable ? "Marked not applicable — select to clear" : "Mark not applicable (N/A)"}"
+          aria-label="${stepState.notApplicable ? "Marked not applicable — select to clear" : "Mark not applicable"}"
+          ${readOnly ? "disabled" : ""}
+        >
+          <span class="na-icon" aria-hidden="true">${iconMarkup(stepState.notApplicable ? "minus" : "ban")}</span>
+          <span class="na-label">N/A</span>
+        </button>
+      </div>
     </article>
 
     <section class="notes-block">
@@ -1027,6 +1035,9 @@ async function handleAction(action, element) {
       toggleStepCompletion(run, template, step.id);
       await persistCurrentRun();
       renderStepDetail();
+      requestAnimationFrame(() =>
+        focusElement(screens["step-detail"].querySelector(".completion-control"))
+      );
       showToast(wasCompleted ? "Step reopened; prior event retained" : "Step completed", wasCompleted ? "" : "success");
       break;
     }
@@ -1043,6 +1054,9 @@ async function handleAction(action, element) {
       toggleStepNotApplicable(run, template, step.id);
       await persistCurrentRun();
       renderStepDetail();
+      requestAnimationFrame(() =>
+        focusElement(screens["step-detail"].querySelector(".na-control"))
+      );
       showToast(wasNotApplicable ? "N/A mark removed" : "Step marked not applicable", wasNotApplicable ? "" : "success");
       break;
     }
@@ -1360,6 +1374,34 @@ function setupEvents() {
       if (event.key === "ArrowRight") {
         event.preventDefault();
         focusElement(screens.procedure.querySelector(".action-rail .focusable:not([disabled])"));
+        return;
+      }
+    }
+
+    if (
+      activeElement?.classList.contains("completion-control") ||
+      activeElement?.classList.contains("na-control")
+    ) {
+      const detail = screens["step-detail"];
+      const completion = detail.querySelector(".completion-control:not([disabled])");
+      const na = detail.querySelector(".na-control:not([disabled])");
+      const onNa = activeElement.classList.contains("na-control");
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        if (!onNa && na) focusElement(na);
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        if (onNa && completion) focusElement(completion);
+        return;
+      }
+      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        event.preventDefault();
+        // Anchor vertical movement on the completion control so the N/A button
+        // never becomes the row's entry point.
+        if (onNa && completion) completion.focus();
+        moveFocus(event.key === "ArrowUp" ? "up" : "down");
         return;
       }
     }
