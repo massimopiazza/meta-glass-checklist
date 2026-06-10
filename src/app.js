@@ -2,7 +2,7 @@ import {
   PROCEDURE_TEMPLATES,
   getTemplate,
   loadProcedureTemplates
-} from "./templates.js?v=17";
+} from "./templates.js?v=18";
 import {
   NOTE_TAGS,
   addMockAttachment,
@@ -20,7 +20,7 @@ import {
   toggleStepNotApplicable,
   updateStepNotes,
   validateTemplates
-} from "./core.js?v=17";
+} from "./core.js?v=18";
 import {
   deleteExport,
   getExport,
@@ -28,7 +28,7 @@ import {
   getAllRuns,
   saveExport,
   saveRun
-} from "./storage.js?v=17";
+} from "./storage.js?v=18";
 
 const state = {
   currentScreen: "home",
@@ -643,7 +643,6 @@ function renderStepImage() {
   image.src = current.src;
   image.alt = current.alt;
   document.getElementById("step-image-caption").textContent = current.caption;
-  document.getElementById("step-image-credit").textContent = `Credit: ${current.credit}`;
 
   const counter = document.getElementById("step-image-counter");
   const dots = document.getElementById("step-image-dots");

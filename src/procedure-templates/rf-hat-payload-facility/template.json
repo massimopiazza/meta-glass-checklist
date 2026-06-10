@@ -29,16 +29,12 @@
         {
           "src": "assets/antenna-prototype-test.jpg",
           "alt": "Full-scale Europa Clipper high-gain antenna prototype undergoing range testing.",
-          "caption": "Reference antenna test configuration for reviewing polarization, mechanical orientation, clearances, and interface identification.",
-          "credit": "NASA/Langley",
-          "sourceUrl": "https://science.nasa.gov/photojournal/europa-clipper-antenna-prototype/"
+          "caption": "Reference antenna test configuration for reviewing polarization, mechanical orientation, clearances, and interface identification."
         },
         {
           "src": "assets/mro-antenna-gimbal-test.jpg",
           "alt": "Technicians preparing the Mars Reconnaissance Orbiter high-gain antenna for a gimbal range-of-motion test in a payload servicing facility.",
-          "caption": "Second reference configuration showing a spacecraft high-gain antenna and gimbal being prepared for a range-of-motion test, useful for checking antenna orientation, clearances, and interface access.",
-          "credit": "NASA/KSC",
-          "sourceUrl": "https://images.nasa.gov/details/05pd1113"
+          "caption": "Second reference configuration showing a spacecraft high-gain antenna and gimbal being prepared for a range-of-motion test, useful for checking antenna orientation, clearances, and interface access."
         }
       ]
     },
@@ -68,9 +64,7 @@
         {
           "src": "assets/rf-anechoic-chamber.jpg",
           "alt": "Roman Space Telescope high-gain antenna in a blue RF anechoic chamber.",
-          "caption": "Reference RF measurement environment showing absorber treatment used to suppress reflections during antenna characterization.",
-          "credit": "NASA/Chris Gunn",
-          "sourceUrl": "https://www.nasa.gov/image-article/high-gain-antenna-nasas-roman-mission-clears-environmental-tests/"
+          "caption": "Reference RF measurement environment showing absorber treatment used to suppress reflections during antenna characterization."
         }
       ]
     },

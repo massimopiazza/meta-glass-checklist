@@ -472,9 +472,7 @@ export function validateTemplates(templates) {
           if (
             !image?.src ||
             !image?.alt ||
-            !image?.caption ||
-            !image?.credit ||
-            !image?.sourceUrl
+            !image?.caption
           ) {
             errors.push(`Incomplete image metadata on ${step.id} in ${template.id}`);
           }

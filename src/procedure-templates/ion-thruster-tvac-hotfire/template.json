@@ -23,16 +23,12 @@
         {
           "src": "assets/vacuum-chamber.jpg",
           "alt": "Interior of NASA Glenn Vacuum Chamber 5 with cryogenic panels and pumping equipment.",
-          "caption": "Reference chamber view showing cryogenic surfaces and facility hardware used to sustain an electric-propulsion vacuum environment.",
-          "credit": "NASA",
-          "sourceUrl": "https://www.nasa.gov/image-article/journey-space-vacuum-chamber/"
+          "caption": "Reference chamber view showing cryogenic surfaces and facility hardware used to sustain an electric-propulsion vacuum environment."
         },
         {
           "src": "assets/sec-thermal-vacuum-chamber.jpg",
           "alt": "Orion spacecraft staged in the high bay of NASA Glenn's Space Environments Complex thermal-vacuum test facility.",
-          "caption": "Second reference view of a large thermal-vacuum test facility high bay, showing chamber support equipment and access scaffolding around a spacecraft under test.",
-          "credit": "NASA/Glenn Research Center",
-          "sourceUrl": "https://images.nasa.gov/details/GRC-2020-C-03345"
+          "caption": "Second reference view of a large thermal-vacuum test facility high bay, showing chamber support equipment and access scaffolding around a spacecraft under test."
         }
       ]
     },
@@ -86,16 +82,12 @@
         {
           "src": "assets/ion-thruster-plume.jpg",
           "alt": "Xenon ion thruster operating in a vacuum chamber with a visible blue plume.",
-          "caption": "Reference view of a xenon ion engine operating under vacuum; use it to orient the operator to the expected illuminated discharge and plume region.",
-          "credit": "NASA/JPL",
-          "sourceUrl": "https://science.nasa.gov/photojournal/deep-space-1s-ion-engine-2/"
+          "caption": "Reference view of a xenon ion engine operating under vacuum; use it to orient the operator to the expected illuminated discharge and plume region."
         },
         {
           "src": "assets/next-ion-engine.jpg",
           "alt": "Technicians installing a NASA Evolutionary Xenon Thruster (NEXT) ion engine inside a vacuum test chamber at NASA Glenn.",
-          "caption": "Reference view of a xenon ion engine and its chamber interfaces during installation, useful for orienting the operator to the thruster hardware and harnessing before ignition.",
-          "credit": "NASA/Glenn Research Center",
-          "sourceUrl": "https://images.nasa.gov/details/GRC-2003-C-00585"
+          "caption": "Reference view of a xenon ion engine and its chamber interfaces during installation, useful for orienting the operator to the thruster hardware and harnessing before ignition."
         }
       ]
     },

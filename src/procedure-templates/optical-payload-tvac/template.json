@@ -29,9 +29,7 @@
         {
           "src": "assets/imaging-spectrometer-tvac.jpg",
           "alt": "Technician installing an imaging spectrometer into a thermal vacuum chamber.",
-          "caption": "Reference installation view for checking payload support, harness routing, chamber clearances, and handling access before closeout.",
-          "credit": "NASA/JPL-Caltech",
-          "sourceUrl": "https://science.nasa.gov/photojournal/imaging-spectrometer-inside-thermal-vacuum-chamber/"
+          "caption": "Reference installation view for checking payload support, harness routing, chamber clearances, and handling access before closeout."
         }
       ]
     },
@@ -49,9 +47,7 @@
         {
           "src": "assets/coronagraph-test-chamber.jpg",
           "alt": "Optical coronagraph test chamber and optical bench hardware at NASA JPL.",
-          "caption": "Reference optical test arrangement illustrating a controlled chamber path used with a simulated star source and precision optical hardware.",
-          "credit": "NASA/JPL-Caltech",
-          "sourceUrl": "https://science.nasa.gov/photojournal/coronagraph-test-chamber/"
+          "caption": "Reference optical test arrangement illustrating a controlled chamber path used with a simulated star source and precision optical hardware."
         }
       ]
     },

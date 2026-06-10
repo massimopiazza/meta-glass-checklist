@@ -349,8 +349,6 @@ button {
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  border: 1px solid var(--amber);
-  border-radius: 50%;
   color: var(--amber);
   font-size: 12px;
   font-weight: 700;
