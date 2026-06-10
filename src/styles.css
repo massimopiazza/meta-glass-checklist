@@ -1071,9 +1071,9 @@ button {
 }
 
 .step-image-viewer figcaption span {
-  margin-top: 5px;
   color: var(--text-secondary);
-  font-size: 10px;
+  font-size: 14px;
+  line-height: 1.48;
 }
 
 .step-action-row {

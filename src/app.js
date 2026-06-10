@@ -2,7 +2,7 @@ import {
   PROCEDURE_TEMPLATES,
   getTemplate,
   loadProcedureTemplates
-} from "./templates.js?v=18";
+} from "./templates.js?v=19";
 import {
   NOTE_TAGS,
   addMockAttachment,
@@ -20,7 +20,7 @@ import {
   toggleStepNotApplicable,
   updateStepNotes,
   validateTemplates
-} from "./core.js?v=18";
+} from "./core.js?v=19";
 import {
   deleteExport,
   getExport,
@@ -28,7 +28,7 @@ import {
   getAllRuns,
   saveExport,
   saveRun
-} from "./storage.js?v=18";
+} from "./storage.js?v=19";
 
 const state = {
   currentScreen: "home",

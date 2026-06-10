@@ -1,4 +1,4 @@
-const CACHE_NAME = "ait-procedure-runner-v18";
+const CACHE_NAME = "ait-procedure-runner-v19";
 const APP_ASSETS = [
   "./",
   "./index.html",
